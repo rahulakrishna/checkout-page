@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { DatePicker } from '@material-ui/pickers';
 import { updateDate } from '../../../actions/dateActions';
