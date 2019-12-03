@@ -19,8 +19,8 @@
     "zipCode": 560085,
     "country": "India"
   },
-  "orderDate": "",
-  "expectedDeliveryDate": "",
+  "orderDate": "2019-12-04",
+  "expectedDeliveryDate": "2019-12-10",
   "items": [
     {
       "productId": 123,
