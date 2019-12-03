@@ -1,0 +1,33 @@
+{
+  "shippingAddress": {
+    "firstName": "Rahul",
+    "lastName": "Krishna",
+    "addressLine1": "Rahul House",
+    "addressLine2": "Handbasket Street",
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "zipCode": 673655,
+    "country": "India"
+  },
+  "billingAddress": {
+    "firstName": "Krishnasree",
+    "lastName": "Menon",
+    "addressLine1": "Menon Nilayam",
+    "addressLine2": "Nileshwar Street, Kaveri Hills",
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "zipCode": 560085,
+    "country": "India"
+  },
+  "orderDate": "",
+  "expectedDeliveryDate": "",
+  "items": [
+    {
+      "productId": 123,
+      "productName": "",
+      "quantity": 2,
+      "unitPrice": "",
+      "notes": ""
+    }
+  ]
+}
