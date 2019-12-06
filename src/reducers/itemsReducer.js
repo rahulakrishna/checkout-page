@@ -13,20 +13,22 @@ export default function reducer(state = initialState, action) {
       return action.items;
     }
     case DELETE_ITEM: {
-      return state.filter(item => item.productId !== action.productId);
+      return state.filter(item => item.id !== action.id);
     }
     case ADD_ITEM: {
       return state.concat({
         ...action.item,
-        id: state.length === 0 ? 1 : state.length,
+        id: state.length + 1,
       });
     }
     case EDIT_ITEM: {
-      return state.splice(
+      let editedArray = state;
+      editedArray.splice(
         state.indexOf(state.find(item => item.id === action.item.id)),
         1,
         action.item
       );
+      return editedArray;
     }
     default: {
       return state;

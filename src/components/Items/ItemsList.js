@@ -67,19 +67,40 @@ const useStyles = makeStyles({
   },
 });
 
-const getCellValue = ({ data, row, deleteItem }) => {
+const getCellValue = ({
+  data,
+  row,
+  deleteItem,
+  setCurrentlyEditingId,
+  setAddRowMode,
+  setFormData,
+}) => {
   if (row.value === 'totalPrice') {
     return data.unitPrice * data.quantity;
   }
   if (row.value === 'actions') {
     return (
       <>
-        <IconButton aria-label="edit">
+        <IconButton
+          aria-label="edit"
+          onClick={() => {
+            setCurrentlyEditingId(data.id);
+            setAddRowMode(false);
+            setFormData({
+              productId: '',
+              productName: '',
+              quantity: '',
+              unitPrice: '',
+              totalPrice: '',
+              notes: '',
+            });
+          }}
+        >
           <EditIcon />
         </IconButton>
         <IconButton
           aria-label="delete"
-          onClick={() => deleteItem({ productId: data.id })}
+          onClick={() => deleteItem({ id: data.id })}
         >
           <DeleteIcon />
         </IconButton>
@@ -89,17 +110,64 @@ const getCellValue = ({ data, row, deleteItem }) => {
   return data[row.value];
 };
 
-const Row = ({ data, deleteItem }) => (
-  <TableRow>
-    {rows.map(row => (
-      <TableCell>{getCellValue({ data, row, deleteItem })}</TableCell>
-    ))}
-  </TableRow>
-);
+const Row = ({
+  data,
+  deleteItem,
+  currentlyEditingId,
+  setCurrentlyEditingId,
+  formData,
+  setFormData,
+  editItem,
+  setAddRowMode,
+}) => {
+  if (currentlyEditingId === data.id) {
+    if (formData.id !== currentlyEditingId) {
+      setFormData({ ...data, totalPrice: data.unitPrice * data.quantity });
+    }
+    return (
+      <InputRow
+        formData={formData}
+        setFormData={setFormData}
+        callBackWithItem={editItem}
+        setAddRowMode={setAddRowMode}
+        setCurrentlyEditingId={setCurrentlyEditingId}
+      />
+    );
+  }
+  return (
+    <TableRow>
+      {rows.map(row => (
+        <TableCell>
+          {getCellValue({
+            data,
+            row,
+            deleteItem,
+            currentlyEditingId,
+            setCurrentlyEditingId,
+            setAddRowMode,
+            setFormData,
+          })}
+        </TableCell>
+      ))}
+    </TableRow>
+  );
+};
 
-const InputRow = ({ formData, setFormData, addItem, setAddRowMode }) => (
+const InputRow = ({
+  formData,
+  setFormData,
+  callBackWithItem,
+  setAddRowMode,
+  setCurrentlyEditingId,
+}) => (
   <>
-    {Object.keys(formData).map(field => {
+    {rows.map(({ value: field }) => {
+      if (field === 'id') {
+        return;
+      }
+      if (field === 'actions') {
+        return;
+      }
       if (field === 'totalPrice') {
         return (
           <TableCell>
@@ -136,7 +204,8 @@ const InputRow = ({ formData, setFormData, addItem, setAddRowMode }) => (
         aria-label="submit"
         onClick={() => {
           setAddRowMode(false);
-          addItem({ item: formData });
+          setCurrentlyEditingId(null);
+          callBackWithItem({ item: formData });
           setFormData({
             productId: '',
             productName: '',
@@ -153,7 +222,13 @@ const InputRow = ({ formData, setFormData, addItem, setAddRowMode }) => (
   </>
 );
 
-const ItemsList = ({ items, deleteItem, updateAllItems, addItem }) => {
+const ItemsList = ({
+  items,
+  deleteItem,
+  updateAllItems,
+  addItem,
+  editItem,
+}) => {
   useEffect(() => {
     updateAllItems({ items: data.items });
   }, [updateAllItems]);
@@ -166,6 +241,7 @@ const ItemsList = ({ items, deleteItem, updateAllItems, addItem }) => {
     totalPrice: '',
     notes: '',
   });
+  const [currentlyEditingId, setCurrentlyEditingId] = useState(null);
   const [addRowMode, setAddRowMode] = useState(false);
   return (
     <Paper className={classes.marginTopBottom32}>
@@ -181,20 +257,44 @@ const ItemsList = ({ items, deleteItem, updateAllItems, addItem }) => {
         </TableHead>
         <TableBody>
           {items.map(data => (
-            <Row data={data} deleteItem={deleteItem} />
+            <Row
+              data={data}
+              deleteItem={deleteItem}
+              setCurrentlyEditingId={setCurrentlyEditingId}
+              currentlyEditingId={currentlyEditingId}
+              formData={formData}
+              setFormData={setFormData}
+              editItem={editItem}
+              setAddRowMode={setAddRowMode}
+            />
           ))}
           {addRowMode && (
             <InputRow
               formData={formData}
               setFormData={setFormData}
-              addItem={addItem}
+              callBackWithItem={addItem}
               setAddRowMode={setAddRowMode}
+              setCurrentlyEditingId={setCurrentlyEditingId}
             />
           )}
         </TableBody>
       </Table>
       {!addRowMode && (
-        <Button primary onClick={setAddRowMode}>
+        <Button
+          primary
+          onClick={() => {
+            setAddRowMode(true);
+            setCurrentlyEditingId(null);
+            setFormData({
+              productId: '',
+              productName: '',
+              quantity: '',
+              unitPrice: '',
+              totalPrice: '',
+              notes: '',
+            });
+          }}
+        >
           Add Item
         </Button>
       )}
@@ -207,9 +307,10 @@ const mapStateToProps = ({ items }) => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  deleteItem: ({ productId }) => dispatch(deleteItem({ productId })),
+  deleteItem: ({ id }) => dispatch(deleteItem({ id })),
   updateAllItems: ({ items }) => dispatch(updateAllItems({ items })),
   addItem: ({ item }) => dispatch(addItem({ item })),
+  editItem: ({ item }) => dispatch(editItem({ item })),
 });
 
 export default connect(
